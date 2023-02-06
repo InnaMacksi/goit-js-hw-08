@@ -34,16 +34,15 @@ import throttle from 'lodash.throttle';
 const iframe = document.querySelector('iframe');
 const player = new Player(iframe);
 
-player.on('play', onPlay);
+player.on('play', saveTime);
+
 
 function saveTime(data) {
-  localStorage.setItem('videoplayer-current-time', data.seconds);
-}
-player.on('timeupdate', throttle(saveTime, 250));
-
-function onPlay(data) {
-  let savedTime = localStorage.getItem('videoplayer-current-time');
-  if (data.seconds !== savedTime) {
-    player.setCurrentTime(savedTime);
+  try {
+    localStorage.setItem('videoplayer-current-time', data.seconds);
+  } catch (error) {
+    console.error('Set state error: ', error.message);
   }
 }
+player.on('timeupdate', throttle(saveTime, 250));
+player.setCurrentTime(localStorage.getItem('videoplayer-current-time') || 0);
